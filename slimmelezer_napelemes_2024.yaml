@@ -13,8 +13,9 @@ esphome:
   project:
     name: zuidwijk.slimmelezer
     version: "2.0"
+
 external_components:
-  - source: /config/esphome/components
+  - source: github://amargo/slimmelezer-eon[@main]
     components: [dsmr]
 
 wifi:
