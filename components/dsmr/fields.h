@@ -369,7 +369,8 @@ namespace dsmr
     DEFINE_FIELD(electricity_threshold_l1, FixedValue, ObisId(1, 0, 31, 4, 0), FixedField, units::A, units::mA);
     DEFINE_FIELD(electricity_threshold_l2, FixedValue, ObisId(1, 0, 51, 4, 0), FixedField, units::A, units::mA);
     DEFINE_FIELD(electricity_threshold_l3, FixedValue, ObisId(1, 0, 71, 4, 0), FixedField, units::A, units::mA);
-		
+    DEFINE_FIELD(electricity_threshold, FixedValue, ObisId(0, 0, 17, 0, 0), FixedField, units::kW, units::W);
+
     /* Switch position Electricity (in/out/enabled). Removed in 4.0.7 / 4.2.2 / 5.0 */
     DEFINE_FIELD(electricity_switch_position, uint8_t, ObisId(0, 0, 96, 3, 10), IntField, units::none);
 
