@@ -182,8 +182,8 @@ constexpr char power_delivered::name[];
 constexpr ObisId power_returned::id;
 constexpr char power_returned::name[];
 
-// constexpr ObisId electricity_threshold::id;
-// constexpr char electricity_threshold::name[];
+constexpr ObisId electricity_threshold::id;
+constexpr char electricity_threshold::name[];
 
 constexpr ObisId electricity_threshold_l1::id;
 constexpr char electricity_threshold_l1::name[];
