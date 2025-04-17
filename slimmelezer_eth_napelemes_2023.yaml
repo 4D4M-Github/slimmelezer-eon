@@ -1,0 +1,233 @@
+---
+substitutions:
+  device_name: "slimmelezer-eth"
+  device_friendly_name: "SlimmeLezer ETH"
+  device_description: "Okosmérő P1 port kiolvasó"
+esphome:
+  name: ${device_name}
+  comment: "${device_description}"
+  name_add_mac_suffix: false
+  project:
+    name: zuidwijk.slimmelezer
+    version: "2.0"
+esp32:
+  board: esp32dev
+
+external_components:
+  - source: github://4D4M-Github/slimmelezer-eon[@main]
+    components: [dsmr]
+    refresh: 0s
+
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO0_IN
+  phy_addr: 1
+  power_pin: GPIO16
+
+#captive_portal:
+
+# Enable logging
+logger:
+  baud_rate: 0
+  level: INFO
+  # logs:
+  #   api: INFO
+  #   api.service: INFO
+  #   sensor: DEBUG
+  #   text_sensor: DEBUG
+  #   esphome: INFO
+  #   ota: INFO
+  #   wifi: INFO
+  #   captive_portal: INFO
+  #   web_server: INFO
+  #   uart: INFO
+  #   scheduler: INFO
+
+# Enable Home Assistant API
+api:
+
+ota:
+  - platform: esphome
+
+web_server:
+  port: 80
+
+uart:
+  id: uart_dsmr
+  baud_rate: 115200
+  rx_pin: GPIO5
+  rx_buffer_size: 3000
+
+dsmr:
+  id: dsmr_instance
+  crc_check: false
+  max_telegram_length: 3000
+
+sensor:
+  - platform: dsmr
+    energy_delivered:
+      name: "Hatásos vételezett energia (+A)"
+      accuracy_decimals: 3
+    energy_delivered_tariff1:
+      name: "Hatásos vételezett energia (+A) tarifa 1"
+      accuracy_decimals: 3
+    energy_delivered_tariff2:
+      name: "Hatásos vételezett energia (+A) tarifa 2"
+      accuracy_decimals: 3
+    # 3-4 egyelőre inaktív (2023.03.27)
+    #energy_delivered_tariff3:
+    #  name: "Hatásos vételezett energia (+A) tarifa 3"
+    #  accuracy_decimals: 3
+    #energy_delivered_tariff4:
+    #  name: "Hatásos vételezett energia (+A) tarifa 4"
+    #  accuracy_decimals: 3
+    power_delivered:
+      name: "Pillanatnyi teljesítmény - hatásos vételezett (+A)"
+      accuracy_decimals: 3
+      id: power_consumed
+      on_value:
+        - script.execute: update_power_balance
+    power_returned:
+      name: "Pillanatnyi teljesítmény - hatásos betáplált (-A)"
+      accuracy_decimals: 3
+      id: power_produced
+      on_value:
+        - script.execute: update_power_balance
+
+    energy_returned:
+      name: "Hatásos betáplált energia (-A)"
+      accuracy_decimals: 3
+    energy_returned_tariff1:
+      name: "Hatásos betáplált energia (-A) tarifa 1"
+      accuracy_decimals: 3
+    energy_returned_tariff2:
+      name: "Hatásos betáplált energia (-A) tarifa 2"
+      accuracy_decimals: 3
+    # 3-4 egyelőre inaktív (2023.03.27)
+    #energy_returned_tariff3:
+    #  name: "Hatásos betáplált energia (-A) tarifa 3"
+    #  accuracy_decimals: 3
+    #energy_returned_tariff4:
+    #  name: "Hatásos betáplált energia (-A) tarifa 4"
+    #  accuracy_decimals: 3
+
+    electricity_tariff:
+      name: "Aktuális tarifa"
+    frequency:
+      name: "Frekvencia"
+      accuracy_decimals: 2
+    energy_absolute:
+      name: "Összes hatásos energia - vételezett és betáplált"
+
+    voltage_l1:
+      name: "Fázisfeszültség L1"
+    voltage_l2:
+      name: "Fázisfeszültség L2"
+    voltage_l3:
+      name: "Fázisfeszültség L3"
+    current_l1:
+      name: "Pillanatnyi áramerősség L1"
+      accuracy_decimals: 1
+    current_l2:
+      name: "Pillanatnyi áramerősség L2"
+      accuracy_decimals: 1
+    current_l3:
+      name: "Pillanatnyi áramerősség L3"
+      accuracy_decimals: 1
+
+    instantaneous_power_factor:
+      name: "Teljesítménytényező - eredő"
+      device_class: power_factor
+    instantaneous_power_factor_l1:
+      name: "Teljesítménytényező L1"
+      device_class: power_factor
+    instantaneous_power_factor_l2:
+      name: "Teljesítménytényező L2"
+      device_class: power_factor
+    instantaneous_power_factor_l3:
+      name: "Teljesítménytényező L3"
+      device_class: power_factor
+
+    reactive_power_qi:
+      name: "Pillanatnyi teljesítmény - meddő (QI)"
+      device_class: reactive_power
+    reactive_power_qii:
+      name: "Pillanatnyi teljesítmény - meddő (QII)"
+      device_class: reactive_power
+    reactive_power_qiii:
+      name: "Pillanatnyi teljesítmény - meddő (QIII)"
+      device_class: reactive_power
+    reactive_power_qiv:
+      name: "Pillanatnyi teljesítmény - meddő (QIV)"
+      device_class: reactive_power
+
+    energy_positive_reactive:
+      name: "Meddő energia - vételezett (+R)"
+    energy_negative_reactive:
+      name: "Meddő energia - betáplált (-R)"
+    reactive_energy_qi:
+      name: "Meddő energia (QI)"
+    reactive_energy_qii:
+      name: "Meddő energia (QII)"
+    reactive_energy_qiii:
+      name: "Meddő energia (QIII)"
+    reactive_energy_qiv:
+      name: "Meddő energia (QIV)"
+    # Mérőóra áramkorlátozó felügyeletének beállítási értéke
+    electricity_threshold_l1:
+      name: "Áramkorlátozó felügyelet küszöbértéke L1"
+    electricity_threshold_l2:
+      name: "Áramkorlátozó felügyelet küszöbértéke L2"
+    electricity_threshold_l3:
+      name: "Áramkorlátozó felügyelet küszöbértéke L3"
+
+    electricity_threshold:
+      name: "Áramkorlátozó küszöbértéke"
+
+  - platform: uptime
+    name: "SlimmeLezer üzemidő"
+    device_class: duration
+  #- platform: wifi_signal
+  #  name: "SlimmeLezer Wi-Fi jel"
+  #  update_interval: 60s
+
+  - platform: template
+    name: "Pillanatnyi teljesítmény - hatásos eredő"
+    id: power_balance
+    unit_of_measurement: kW
+    state_class: measurement
+    device_class: power
+    accuracy_decimals: 3
+
+text_sensor:
+  #- platform: wifi_info
+  #  ip_address:
+  #    name: "SlimmeLezer IP"
+  #    update_interval: 60s
+  #  ssid:
+  #    name: "SlimmeLezer Wi-Fi SSID"
+  #    update_interval: 60s
+  #  bssid:
+  #    name: "SlimmeLezer Wi-Fi BSSID"
+  #    update_interval: 60s
+
+  - platform: dsmr
+    #identification:
+    #  name: "COSEM logikai készüléknév"
+    #equipment_id:
+    #  name: "Mérő gyáriszám"
+    breaker_status:
+      name: "Megszakító státusz"
+
+  - platform: version
+    name: "ESPHome verzió és build"
+    hide_timestamp: false
+
+script:
+  - id: update_power_balance
+    mode: single
+    then:
+      - lambda: |-
+          id(power_balance).publish_state(id(power_produced).state-id(power_consumed).state);
