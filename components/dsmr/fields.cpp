@@ -102,6 +102,9 @@ constexpr char energy_returned_tariff3::name[];
 constexpr ObisId energy_returned_tariff4::id;
 constexpr char energy_returned_tariff4::name[];
 
+constexpr ObisId energy_absolute::id;
+constexpr char energy_absolute::name[];
+
 constexpr ObisId energy_absolute_tariff1::id;
 constexpr char energy_absolute_tariff1::name[];
 
