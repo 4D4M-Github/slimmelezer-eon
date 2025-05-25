@@ -47,7 +47,6 @@ async def to_code(config):
             if key != "telegram":
                 # telegram is not handled by dsmr
                 text_sensors.append(f"F({key})")
-            text_sensors.append(f"F({key})")
 
     if text_sensors:
         cg.add_define(
