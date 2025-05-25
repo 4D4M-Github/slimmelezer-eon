@@ -41,8 +41,7 @@ async def to_code(config):
             continue
         id = conf.get("id")
         if id and id.type == text_sensor.TextSensor:
-            var = cg.new_Pvariable(conf[CONF_ID])
-            await text_sensor.register_text_sensor(var, conf)
+            var = await text_sensor.new_text_sensor(conf)
             cg.add(getattr(hub, f"set_{key}")(var))
             if key != "telegram":
                 # telegram is not handled by dsmr
