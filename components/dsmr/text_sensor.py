@@ -1,6 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import text_sensor
+from esphome.const import CONF_INTERNAL
 from esphome.const import (
     CONF_ID,
 )
@@ -24,7 +25,9 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional("water_equipment_id"): text_sensor.text_sensor_schema(),
         cv.Optional("sub_equipment_id"): text_sensor.text_sensor_schema(),
         cv.Optional("gas_delivered_text"): text_sensor.text_sensor_schema(),
-        cv.Optional("telegram"): text_sensor.text_sensor_schema().extend({cv.Optional(CONF_INTERNAL, default=True): cv.boolean),
+        cv.Optional("telegram"): text_sensor.text_sensor_schema().extend(
+            {cv.Optional(CONF_INTERNAL, default=True): cv.boolean}
+        ),
     }
 ).extend(cv.COMPONENT_SCHEMA)
 
