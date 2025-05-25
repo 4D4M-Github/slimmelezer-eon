@@ -82,6 +82,8 @@ class Dsmr : public Component, public uart::UARTDevice {
 #define DSMR_SET_TEXT_SENSOR(s) \
   void set_##s(text_sensor::TextSensor *sensor) { s_##s##_ = sensor; }
   DSMR_TEXT_SENSOR_LIST(DSMR_SET_TEXT_SENSOR, )
+  // handled outside dsmr
+  void set_telegram(text_sensor::TextSensor *sensor) { s_telegram_ = sensor; }
 
  protected:
   void receive_telegram_();
@@ -121,6 +123,9 @@ class Dsmr : public Component, public uart::UARTDevice {
   uint32_t last_read_time_{0};
   bool header_found_{false};
   bool footer_found_{false};
+  
+  // handled outside dsmr
+  text_sensor::TextSensor *s_telegram_{nullptr};
 
 // Sensor member pointers
 #define DSMR_DECLARE_SENSOR(s) sensor::Sensor *s_##s##_{nullptr};
