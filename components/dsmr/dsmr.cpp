@@ -261,7 +261,7 @@ bool Dsmr::parse_telegram() {
   this->stop_requesting_data_();
   ::dsmr::ParseResult<void> res =
       ::dsmr::P1Parser::parse(&data, this->telegram_, this->bytes_read_, false,
-                              this->crc_check_);  // Parse telegram according to data definition. Ignore unknown values.
+                              this->crc_check_, this->lenient_);  // Parse telegram according to data definition. Ignore unknown values.
   if (res.err) {
     // Parsing error, show it
     auto err_str = res.fullError(this->telegram_, this->telegram_ + this->bytes_read_);
