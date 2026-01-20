@@ -19,6 +19,7 @@ external_components:
     components: [dsmr]
 
 wifi:
+  min_auth_mode: WPA2
   ap:
     ssid: ${device_name}
 
@@ -339,13 +340,10 @@ text_sensor:
   - platform: wifi_info
     ip_address:
       name: "SlimmeLezer IP"
-      update_interval: 60s
     ssid:
       name: "SlimmeLezer Wi-Fi SSID"
-      update_interval: 60s
     bssid:
       name: "SlimmeLezer Wi-Fi BSSID"
-      update_interval: 60s
 
   - platform: dsmr
     #identification:
