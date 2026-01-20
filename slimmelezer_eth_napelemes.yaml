@@ -1,7 +1,7 @@
 ---
 substitutions:
-  device_name: "slimmelezer-2023"
-  device_friendly_name: "SlimmeLezer 2023"
+  device_name: "slimmelezer-eth"
+  device_friendly_name: "SlimmeLezer ETH"
   device_description: "Okosmérő P1 port kiolvasó"
 esphome:
   name: ${device_name}
@@ -10,20 +10,25 @@ esphome:
   project:
     name: zuidwijk.slimmelezer
     version: "2.0"
-esp8266:
-  board: d1_mini
-  restore_from_flash: true
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
 
 external_components:
   - source: github://amargo/slimmelezer-eon[@main]
     components: [dsmr]
+    refresh: 0s
 
-wifi:
-  min_auth_mode: WPA2
-  ap:
-    ssid: ${device_name}
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO0_IN
+  phy_addr: 1
+  power_pin: GPIO16
 
-captive_portal:
+#captive_portal:
 
 # Enable logging
 logger:
@@ -52,8 +57,9 @@ web_server:
   port: 80
 
 uart:
+  id: uart_dsmr
   baud_rate: 115200
-  rx_pin: D7
+  rx_pin: GPIO5
   rx_buffer_size: 3000
 
 dsmr:
@@ -74,12 +80,13 @@ sensor:
       name: "Hatásos vételezett energia (+A) tarifa 2"
       accuracy_decimals: 3
     # 3-4 egyelőre inaktív (2023.03.27)
-    #energy_delivered_tariff3:
-    #  name: "Hatásos vételezett energia (+A) tarifa 3"
-    #  accuracy_decimals: 3
-    #energy_delivered_tariff4:
-    #  name: "Hatásos vételezett energia (+A) tarifa 4"
-    #  accuracy_decimals: 3
+    energy_delivered_tariff3:
+      name: "Hatásos vételezett energia (+A) tarifa 3"
+      accuracy_decimals: 3
+    energy_delivered_tariff4:
+      name: "Hatásos vételezett energia (+A) tarifa 4"
+      accuracy_decimals: 3
+
     power_delivered_l1:
       name: "Pillanatnyi teljesítmény L1 - hatásos vételezett (+A)"
       accuracy_decimals: 3
@@ -147,12 +154,12 @@ sensor:
       name: "Hatásos betáplált energia (-A) tarifa 2"
       accuracy_decimals: 3
     # 3-4 egyelőre inaktív (2023.03.27)
-    #energy_returned_tariff3:
-    #  name: "Hatásos betáplált energia (-A) tarifa 3"
-    #  accuracy_decimals: 3
-    #energy_returned_tariff4:
-    #  name: "Hatásos betáplált energia (-A) tarifa 4"
-    #  accuracy_decimals: 3
+    energy_returned_tariff3:
+      name: "Hatásos betáplált energia (-A) tarifa 3"
+      accuracy_decimals: 3
+    energy_returned_tariff4:
+      name: "Hatásos betáplált energia (-A) tarifa 4"
+      accuracy_decimals: 3
 
     electricity_tariff:
       name: "Aktuális tarifa"
@@ -227,7 +234,6 @@ sensor:
       name: "Pillanatnyi teljesítmény - meddő (QIV)"
       device_class: reactive_power
       accuracy_decimals: 3
-
     energy_positive_reactive:
       name: "Meddő energia - vételezett (+R)"
       id: energy_positive_reactive
@@ -256,9 +262,6 @@ sensor:
   - platform: uptime
     name: "SlimmeLezer üzemidő"
     device_class: duration
-  - platform: wifi_signal
-    name: "SlimmeLezer Wi-Fi jel"
-    update_interval: 60s
 
   - platform: template
     name: "Pillanatnyi teljesítmény - hatásos eredő"
@@ -303,8 +306,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   - platform: template
     name: "Pillanatnyi áramerősség L2 - nettó"
@@ -312,8 +318,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   - platform: template
     name: "Pillanatnyi áramerősség L3 - nettó"
@@ -321,8 +330,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   # Net reactive energy (positive = consumed, negative = produced)
   - platform: template
@@ -337,21 +349,17 @@ sensor:
       return positive - negative;
 
 text_sensor:
-  - platform: wifi_info
-    ip_address:
-      name: "SlimmeLezer IP"
-    ssid:
-      name: "SlimmeLezer Wi-Fi SSID"
-    bssid:
-      name: "SlimmeLezer Wi-Fi BSSID"
-
   - platform: dsmr
     #identification:
     #  name: "COSEM logikai készüléknév"
     #equipment_id:
     #  name: "Mérő gyáriszám"
+
+    #Mérőtől függő konfig (valamelyik működik)
     breaker_status:
       name: "Megszakító státusz"
+    breaker_status_b:
+      name: "Megszakító státusz B"
 
   - platform: version
     name: "ESPHome verzió és build"

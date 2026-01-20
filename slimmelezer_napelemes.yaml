@@ -1,7 +1,7 @@
 ---
 substitutions:
-  device_name: "slimmelezer-eth"
-  device_friendly_name: "SlimmeLezer ETH"
+  device_name: "slimmelezer"
+  device_friendly_name: "SlimmeLezer"
   device_description: "Okosmérő P1 port kiolvasó"
 esphome:
   name: ${device_name}
@@ -10,25 +10,20 @@ esphome:
   project:
     name: zuidwijk.slimmelezer
     version: "2.0"
-esp32:
-  board: esp32dev
-  framework:
-    type: arduino
+esp8266:
+  board: d1_mini
+  restore_from_flash: true
 
 external_components:
   - source: github://amargo/slimmelezer-eon[@main]
     components: [dsmr]
-    refresh: 0s
 
-ethernet:
-  type: LAN8720
-  mdc_pin: GPIO23
-  mdio_pin: GPIO18
-  clk_mode: GPIO0_IN
-  phy_addr: 1
-  power_pin: GPIO16
+wifi:
+  min_auth_mode: WPA2
+  ap:
+    ssid: ${device_name}
 
-#captive_portal:
+captive_portal:
 
 # Enable logging
 logger:
@@ -51,15 +46,14 @@ logger:
 api:
 
 ota:
-  - platform: esphome
+  platform: esphome
 
 web_server:
   port: 80
 
 uart:
-  id: uart_dsmr
   baud_rate: 115200
-  rx_pin: GPIO5
+  rx_pin: D7
   rx_buffer_size: 3000
 
 dsmr:
@@ -263,6 +257,9 @@ sensor:
   - platform: uptime
     name: "SlimmeLezer üzemidő"
     device_class: duration
+  - platform: wifi_signal
+    name: "SlimmeLezer Wi-Fi jel"
+    update_interval: 60s
 
   - platform: template
     name: "Pillanatnyi teljesítmény - hatásos eredő"
@@ -307,8 +304,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   - platform: template
     name: "Pillanatnyi áramerősség L2 - nettó"
@@ -316,8 +316,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   - platform: template
     name: "Pillanatnyi áramerősség L3 - nettó"
@@ -325,8 +328,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   # Net reactive energy (positive = consumed, negative = produced)
   - platform: template
@@ -341,6 +347,14 @@ sensor:
       return positive - negative;
 
 text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "SlimmeLezer IP"
+    ssid:
+      name: "SlimmeLezer Wi-Fi SSID"
+    bssid:
+      name: "SlimmeLezer Wi-Fi BSSID"
+
   - platform: dsmr
     #identification:
     #  name: "COSEM logikai készüléknév"
