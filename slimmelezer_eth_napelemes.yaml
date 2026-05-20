@@ -66,6 +66,7 @@ dsmr:
   id: dsmr_instance
   crc_check: false
   max_telegram_length: 3000
+  lenient: true
 
 sensor:
   - platform: dsmr
@@ -233,7 +234,6 @@ sensor:
       name: "Pillanatnyi teljesítmény - meddő (QIV)"
       device_class: reactive_power
       accuracy_decimals: 3
-
     energy_positive_reactive:
       name: "Meddő energia - vételezett (+R)"
       id: energy_positive_reactive
@@ -306,8 +306,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   - platform: template
     name: "Pillanatnyi áramerősség L2 - nettó"
@@ -315,8 +318,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   - platform: template
     name: "Pillanatnyi áramerősség L3 - nettó"
@@ -324,8 +330,11 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 2
+    accuracy_decimals: 1
     update_interval: never
+    filters:
+      - lambda: |-
+          return roundf(x * 10.0f) / 10.0f;
 
   # Net reactive energy (positive = consumed, negative = produced)
   - platform: template
